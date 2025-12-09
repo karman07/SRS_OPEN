@@ -26,16 +26,19 @@ export const fetchAllReviews = async (): Promise<any> => {
 export const fetchTeacherReviews = async (
   teacherId: string | undefined,
   subject: string | undefined,
-  branch: string | undefined
+  branch: string | undefined,
+  section?: string | undefined
 ): Promise<any> => {
   try {
-    const data = await API.get(`/filter`, {
-      params: {
-        branch,
-        subject,
-        teacherId,
-      },
-    });
+    const params: any = {
+      branch,
+      subject,
+      teacherId,
+    };
+    if (section) {
+      params.section = section;
+    }
+    const data = await API.get(`/filter`, { params });
     return data;
   } catch (error) {
     console.error("Error fetching teacher's reviews: \n", error);

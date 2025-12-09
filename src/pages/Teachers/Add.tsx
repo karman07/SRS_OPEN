@@ -13,11 +13,19 @@ import { useState } from "react";
 import { addTeacher } from "@/api/teachers";
 import { X } from "lucide-react";
 import { useTheme } from "@/context/theme-provider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const BRANCH_OPTIONS = ["CSE-A", "CSE-B", "Electrical", "Mechanical", "Civil", "Architecture"];
 
 export const AddDialog = ({ isOpen, onClose, onAdd }: AddDialogProps) => {
   const { theme } = useTheme();
   const [name, setName] = useState("");
-  const [branchInput, setBranchInput] = useState("");
+  const [_, setBranchInput] = useState("");
   const [branches, setBranches] = useState<string[]>([]);
 
   const [semesterInput, setSemesterInput] = useState("");
@@ -26,10 +34,9 @@ export const AddDialog = ({ isOpen, onClose, onAdd }: AddDialogProps) => {
   const [subjectInput, setSubjectInput] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
 
-  const handleAddBranch = () => {
-    if (branchInput.trim()) {
-      setBranches([...branches, branchInput.trim()]);
-      setBranchInput("");
+  const handleAddBranch = (branch: string) => {
+    if (branch && !branches.includes(branch)) {
+      setBranches([...branches, branch]);
     }
   };
 
@@ -185,16 +192,24 @@ export const AddDialog = ({ isOpen, onClose, onAdd }: AddDialogProps) => {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
-              <Input
-                value={branchInput}
-                onChange={(e) => setBranchInput(e.target.value)}
-                placeholder="Enter branch"
-              />
-              <Button type="button" onClick={handleAddBranch}>
-                Save
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="outline" className="w-full">
+                  Select Branch
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                {BRANCH_OPTIONS.map((branch) => (
+                  <DropdownMenuItem
+                    key={branch}
+                    onClick={() => handleAddBranch(branch)}
+                    disabled={branches.includes(branch)}
+                  >
+                    {branch}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

@@ -27,9 +27,10 @@ export const semesters = [
 export const departments = [
   { id: 1, department: "Architectural", text: "Architechtural Assistantship" },
   { id: 2, department: "Civil", text: "Civil Engineering" },
-  { id: 3, department: "CSE", text: "Computer Science Engineering" },
-  { id: 4, department: "Electrical", text: "Electrical Engineering" },
-  { id: 5, department: "Mechanical", text: "Mechanical Engineering" },
+  { id: 3, department: "CSE-A", text: "Computer Science Engineering" },
+    { id: 4, department: "CSE-B", text: "Computer Science Engineering - B" },
+  { id: 5, department: "Electrical", text: "Electrical Engineering" },
+  { id: 6, department: "Mechanical", text: "Mechanical Engineering" },
 ];
 
 export const reviewData = [

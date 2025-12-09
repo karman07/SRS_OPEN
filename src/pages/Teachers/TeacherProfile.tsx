@@ -172,7 +172,7 @@ const ReviewCards = ({ reviews, onStudentClick }: { reviews: any[], onStudentCli
 };
 
 export function TeacherProfile() {
-  const {semester, teacherId, departmentId, subject} = useParams();
+  const {semester, teacherId, departmentId, subject, section} = useParams();
   console.log(semester)
   const navigate = useNavigate();
   const [eda, setEda] = useState<any>(null);
@@ -183,7 +183,10 @@ export function TeacherProfile() {
   const fetchEdaData = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${BASE_URL}/eda/${teacherId}/${subject}/${departmentId}`);
+      const url = section 
+        ? `${BASE_URL}/eda/${teacherId}/${subject}/${departmentId}?section=${section}`
+        : `${BASE_URL}/eda/${teacherId}/${subject}/${departmentId}`;
+      const res = await fetch(url);
       const json = await res.json();
       setEda(json);
     } catch (err) {
@@ -195,8 +198,16 @@ export function TeacherProfile() {
 
   const fetchReviews = async () => {
     try {
+      const params = new URLSearchParams({
+        branch: departmentId!,
+        subject: subject!,
+        teacherId: teacherId!,
+      });
+      if (section) {
+        params.append('section', section);
+      }
       const res = await fetch(
-        `${BASE_URL}/reviews/filter?branch=${departmentId}&subject=${subject}&teacherId=${teacherId}`
+        `${BASE_URL}/reviews/filter?${params.toString()}`
       );
       const data = await res.json();
       setReviews(data);
@@ -210,10 +221,11 @@ export function TeacherProfile() {
       fetchEdaData();
       fetchReviews();
     }
-  }, [teacherId, subject, departmentId]);
+  }, [teacherId, subject, departmentId, section]);
 
   const handleStudentClick = (studentId: string) => {
-    navigate(`/reviews/semester/${subject}/department/${departmentId}/teacher/${teacherId}/student/${studentId}`);
+    const sectionPath = section ? `/section/${section}` : '';
+    navigate(`/reviews/semester/${subject}/department/${departmentId}${sectionPath}/teacher/${teacherId}/student/${studentId}`);
   };
 
   const renderContent = () => {

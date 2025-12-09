@@ -15,10 +15,14 @@ const API = axios.create({
 export const fetchTeacherProfile = async (
   teacherId: string,
   subject: string,
-  branch: string
+  branch: string,
+  section?: string
 ): Promise<any> => {
   try {
-    const data = await API.get(`/${teacherId}/${subject}/${branch}`);
+    const url = section 
+      ? `/${teacherId}/${subject}/${branch}?section=${section}`
+      : `/${teacherId}/${subject}/${branch}`;
+    const data = await API.get(url);
     return data;
   } catch (error) {
     console.error("Error fetching questions: \n", error);

@@ -27,6 +27,10 @@ const App = () => {
           element={<TeacherProfile />}
         />
         <Route
+          path="/reviews/semester/:semester/department/:departmentId/section/:section/teacher/:teacherId/subject/:subject"
+          element={<TeacherProfile />}
+        />
+        <Route
           path="/reviews/semester/:semester/department/:departmentId/teacher/:teacherId/student/:studentId"
           element={<StudentReviewPage />}
         />
