@@ -114,7 +114,7 @@ export default function Login() {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{" "}
                 <a 
-                  href="http://147.93.27.245:8005/" 
+                  href="https://srsregister.dine3d.com/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-green-700 font-semibold hover:underline hover:text-green-900 transition-colors duration-300"
