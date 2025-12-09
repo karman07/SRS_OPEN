@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App.jsx';
-import Login from './pages/Login.jsx';
+import Login from './Pages/Login.jsx';
 import ReviewPage from './Pages/ReviewPage.jsx';
 import './index.css';
 import Navbar from './components/ui/Navbar.jsx';
