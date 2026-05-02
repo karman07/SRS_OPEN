@@ -16,12 +16,8 @@ export const students = [
 ];
 
 export const semesters = [
-  { id: 1, sem: "1", text: "Semester 1" },
-  { id: 2, sem: "2", text: "Semester 2" },
-  { id: 3, sem: "3", text: "Semester 3" },
-  { id: 4, sem: "4", text: "Semester 4" },
-  { id: 5, sem: "5", text: "Semester 5" },
-  { id: 6, sem: "6", text: "Semester 6" },
+  { id: 1, sem: "2nd", text: "Semester 2" },
+  { id: 2, sem: "4th", text: "Semester 4" },
 ];
 
 export const departments = [

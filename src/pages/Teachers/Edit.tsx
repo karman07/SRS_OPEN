@@ -13,6 +13,46 @@ import { useEffect, useState } from "react";
 import { updateTeacher } from "@/api/teachers";
 import { X } from "lucide-react";
 import { useTheme } from "@/context/theme-provider";
+import axios from "axios";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+interface AcademicOptionsResponse {
+  branches: string[];
+  semesters: string[];
+}
+
+const TagList = ({
+  items,
+  onRemove,
+  theme,
+}: {
+  items: string[];
+  onRemove: (value: string) => void;
+  theme: string;
+}) =>
+  items.length === 0 ? null : (
+    <div className="flex flex-wrap gap-2 text-sm mt-2">
+      {items.map((item) => (
+        <div
+          key={item}
+          className={`${
+            theme === "dark" ? "bg-gray-600" : "bg-gray-200"
+          } px-2 py-1 rounded flex items-center justify-center gap-1`}>
+          {item}
+          <button
+            onClick={() => onRemove(item)}
+            className="text-red-500 hover:text-red-700">
+            <X size={14} />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
 
 export const EditDialog = ({
   isOpen,
@@ -25,10 +65,24 @@ export const EditDialog = ({
   const [semesters, setSemesters] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [branches, setBranches] = useState<string[]>([]);
-
-  const [semesterInput, setSemesterInput] = useState("");
   const [subjectInput, setSubjectInput] = useState("");
-  const [branchInput, setBranchInput] = useState("");
+  const [branchOptions, setBranchOptions] = useState<string[]>([]);
+  const [semesterOptions, setSemesterOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchAcademicOptions = async () => {
+      try {
+        const { data } = await axios.get<AcademicOptionsResponse>(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/academic-options`,
+        );
+        if (data.branches?.length) setBranchOptions(data.branches);
+        if (data.semesters?.length) setSemesterOptions(data.semesters);
+      } catch (error) {
+        console.error("Failed to load academic options:", error);
+      }
+    };
+    fetchAcademicOptions();
+  }, []);
 
   useEffect(() => {
     if (teacher) {
@@ -39,50 +93,18 @@ export const EditDialog = ({
     }
   }, [teacher]);
 
-  const handleAddSemester = () => {
-    if (semesterInput.trim()) {
-      setSemesters([...semesters, semesterInput.trim()]);
-      setSemesterInput("");
-    }
-  };
-
   const handleAddSubject = () => {
-    if (subjectInput.trim()) {
-      setSubjects([...subjects, subjectInput.trim()]);
+    const trimmed = subjectInput.trim();
+    if (trimmed && !subjects.includes(trimmed)) {
+      setSubjects([...subjects, trimmed]);
       setSubjectInput("");
-    }
-  };
-
-  const handleAddBranch = () => {
-    if (branchInput.trim()) {
-      setBranches([...branches, branchInput.trim()]);
-      setBranchInput("");
-    }
-  };
-
-  const handleRemoveItem = (
-    type: "semesters" | "subjects" | "branches",
-    value: string
-  ) => {
-    if (type === "semesters") {
-      setSemesters((prev) => prev.filter((item) => item !== value));
-    } else if (type === "subjects") {
-      setSubjects((prev) => prev.filter((item) => item !== value));
-    } else if (type === "branches") {
-      setBranches((prev) => prev.filter((item) => item !== value));
     }
   };
 
   const handleSave = async () => {
     if (!teacher?._id) return;
-    const updatedTeacher = {
-      name,
-      semesters,
-      subjects,
-      branches,
-    };
     try {
-      const data = await updateTeacher(teacher._id, updatedTeacher);
+      const data = await updateTeacher(teacher._id, { name, semesters, subjects, branches });
       onEdit(data);
       onClose();
     } catch (error) {
@@ -95,8 +117,6 @@ export const EditDialog = ({
     setBranches(teacher?.branches || []);
     setSemesters(teacher?.semesters || []);
     setSubjects(teacher?.subjects || []);
-    setBranchInput("");
-    setSemesterInput("");
     setSubjectInput("");
   };
 
@@ -106,28 +126,6 @@ export const EditDialog = ({
       onClose();
     }
   };
-
-  const renderList = (
-    items: string[],
-    type: "semesters" | "subjects" | "branches"
-  ) => (
-    <div className="flex flex-wrap gap-2 text-sm mt-2">
-      {items.map((item) => (
-        <div
-          key={item}
-          className={`${
-            theme === "dark" ? "bg-gray-600" : "bg-gray-200"
-          } px-2 py-1 rounded flex items-center justify-center gap-1`}>
-          {item}
-          <button
-            onClick={() => handleRemoveItem(type, item)}
-            className="text-red-500 hover:text-red-700 font-bold text-lg">
-            <X size={24} />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
@@ -142,49 +140,79 @@ export const EditDialog = ({
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
+          {/* Semesters — dropdown */}
           <div>
             <label className="block text-sm font-medium">Semesters</label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                placeholder="Enter semester"
-                value={semesterInput}
-                onChange={(e) => setSemesterInput(e.target.value)}
-              />
-              <Button type="button" onClick={handleAddSemester}>
-                Add
-              </Button>
-            </div>
-            {renderList(semesters, "semesters")}
+            <TagList
+              items={semesters}
+              onRemove={(v) => setSemesters(semesters.filter((s) => s !== v))}
+              theme={theme}
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="outline" className="w-full mt-1">
+                  Select Semester
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                {semesterOptions.map((sem) => (
+                  <DropdownMenuItem
+                    key={sem}
+                    onClick={() => !semesters.includes(sem) && setSemesters([...semesters, sem])}
+                    disabled={semesters.includes(sem)}>
+                    {sem} Semester
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
+          {/* Subjects — free text */}
           <div>
             <label className="block text-sm font-medium">Subjects</label>
+            <TagList
+              items={subjects}
+              onRemove={(v) => setSubjects(subjects.filter((s) => s !== v))}
+              theme={theme}
+            />
             <div className="flex gap-2 mt-1">
               <Input
-                placeholder="Enter subject"
+                placeholder="Enter subject and press Enter"
                 value={subjectInput}
                 onChange={(e) => setSubjectInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddSubject()}
               />
               <Button type="button" onClick={handleAddSubject}>
                 Add
               </Button>
             </div>
-            {renderList(subjects, "subjects")}
           </div>
 
+          {/* Branches — dropdown */}
           <div>
             <label className="block text-sm font-medium">Branches</label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                placeholder="Enter branch"
-                value={branchInput}
-                onChange={(e) => setBranchInput(e.target.value)}
-              />
-              <Button type="button" onClick={handleAddBranch}>
-                Add
-              </Button>
-            </div>
-            {renderList(branches, "branches")}
+            <TagList
+              items={branches}
+              onRemove={(v) => setBranches(branches.filter((b) => b !== v))}
+              theme={theme}
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="outline" className="w-full mt-1">
+                  Select Branch
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                {branchOptions.map((branch) => (
+                  <DropdownMenuItem
+                    key={branch}
+                    onClick={() => !branches.includes(branch) && setBranches([...branches, branch])}
+                    disabled={branches.includes(branch)}>
+                    {branch}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
