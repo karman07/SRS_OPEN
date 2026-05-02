@@ -1,1 +1,1 @@
-export const BASE_URL = "https://srsbackend.dine3d.com"
+export const BASE_URL = import.meta.env.VITE_BACKEND_URL
