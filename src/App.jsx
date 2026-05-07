@@ -4,7 +4,7 @@ import { BASE_URL } from './base/Base';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from './theme/ThemeContext'; // Assuming ThemeContext is already created
 
-const ALLOWED_SEMESTERS = ['2nd', '4th'];
+const ALLOWED_SEMESTERS = ['2nd', '4th', '6th'];
 
 const TeacherList = () => {
   const { darkMode } = useTheme();
@@ -31,7 +31,7 @@ const TeacherList = () => {
       }
 
       if (!ALLOWED_SEMESTERS.includes(user.semester)) {
-        console.error('Invalid semester in user object. Only 2nd and 4th are allowed.');
+        console.error('Invalid semester in user object. Only 2nd, 4th and 6th are allowed.');
         setLoading(false);
         return;
       }
