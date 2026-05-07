@@ -21,23 +21,20 @@ const TeacherList = () => {
 
   const fetchTeachers = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = JSON.parse(localStorage.getItem('user')) || {};
       const reviewed = JSON.parse(localStorage.getItem('reviewedTeachers')) || [];
 
-      if (!user?.branch || !user?.semester) {
-        console.error('Branch or Semester not found in user object');
-        setLoading(false);
-        return;
-      }
+      const branch = user.branch || 'Architecture';
+      const semester = user.semester || '6th';
 
-      if (!ALLOWED_SEMESTERS.includes(user.semester)) {
-        console.error('Invalid semester in user object. Only 2nd, 4th and 6th are allowed.');
+      if (!ALLOWED_SEMESTERS.includes(semester)) {
+        console.error('Invalid semester. Only 2nd, 4th and 6th are allowed.');
         setLoading(false);
         return;
       }
 
       const response = await axios.get(`${BASE_URL}/teachers`, {
-        params: { branch: user.branch, semester: user.semester },
+        params: { branch, semester },
       });
 
       const unreviewed = response.data
